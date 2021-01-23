@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Red</title>
+    <!-- Add a new favicon -->
+    <link rel="shortcut icon" href="../favicon.ico">
+    <!-- Responsive navigation stylesheets -->
+    <link href="Content/css/normalize.css" rel="stylesheet" />
+    <link href="Content/css/demo.css" rel="stylesheet" />
+    <link href="Content/css/component.css" rel="stylesheet" />
+    <!--Custom navigation script-->
+    <!--bootstrap cdn-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <script src="Content/js/modernizr.custom.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <ul id="gn-menu" class="gn-menu-main">
+            <li class="gn-trigger">
+                <a class="gn-icon gn-icon-menu"><span>Menu</span></a>
+                <nav class="gn-menu-wrapper">
+                    <div class="gn-scroller">
+                        <ul class="gn-menu">
+                            <li class="gn-search-item">
+                                <input placeholder="Search" type="search" class="gn-search">
+                                <a class="gn-icon gn-icon-search"><span>Search</span></a>
+                            </li>
+                            <li>
+                                <a class="gn-icon gn-icon-download">Downloads</a>   
+                            </li>
+                        </ul>
+                    </div><!-- /gn-scroller -->
+                </nav>
+            </li>
+            <li><a href="#">Team Red</a></li>
+        </ul>
+        <header>
+            <h1>GreatReads <span>An Online Book Shelf</span></h1>
+        </header>
+        <div class="container">
+            <form>
+                <div class="form-group">
+                    <label for="exampleFormControlFile1">Example file input</label>
+                    <input class="form-control" type="text" placeholder="0441172717">
+                </div>
+            </form>
+        </div>
+    </div><!-- /container -->
+    <script src="Content/js/classie.js"></script>
+    <script src="Content/js/gnmenu.js"></script>
+    <script>
+        new gnMenu(document.getElementById('gn-menu'));
+        window.onload = function () {
+            goodRead('9382749004'); // not found
+            goodRead('0441172717'); // single author
+            goodRead('0552137030'); // multiple author
+
+            function goodRead(isbn) {
+
+                var key = "4IE75o8sWVBkt6LYAnzQ"; // replace with your key
+
+                var url = "https://www.goodreads.com/book/isbn/" + isbn + "?key=" + key;
+
+                $.get("http://query.yahooapis.com/v1/public/yql",
+                    {
+                        q: "select * from xml where url=\"" + url + "\"",
+                        format: "json"
+                    },
+                    function (json) {
+
+                        if (json.query.results.error === "Page not found") {
+                            console.log("no book found");
+                        } else {
+
+                            var book = json.query.results.GoodreadsResponse.book;
+
+                            var title = book.title;
+                            var isbn10 = book.isbn;
+                            var isbn13 = book.isbn13;
+                            var country_code = book.country_code;
+                            var image_url = book.image_url;
+                            var small_image_url = book.small_image_url;
+                            var publisher = book.publisher;
+                            var description = book.description;
+
+                            var all_authors = book.authors.author;
+
+
+
+                            if (book.authors.author.length === undefined) { //single author
+
+                                var authors = [all_authors.name];
+
+                            } else { // multiple authors
+
+                                var author_count = all_authors.length
+
+                                var authors = [];
+
+                                for (i = 0; i < author_count; i++) {
+                                    authors.push(all_authors[i].name)
+                                }
+
+                            }
+
+                            var book_object = {
+                                "title": title,
+                                "isbn10": isbn10,
+                                "isbn13": isbn13,
+                                "country_code": country_code,
+                                "image_url": image_url,
+                                "small_image_url": small_image_url,
+                                "publisher": publisher,
+                                "description": description,
+                                "authors": authors,
+                            }
+                            console.log(book_object);
+
+                        }
+                    }
+                );
+            }
+
+        }
+    </script>
+</body>
+</html>
